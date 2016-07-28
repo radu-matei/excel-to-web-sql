@@ -8,25 +8,25 @@
 # the number format of the cells creates a basic CREATE TABLE script for each
 # sheet in the file.
 #
-#.PARAMETER $excelFilePath
+#.PARAMETER $ExcelFilePath
 # The path to the Excel file
 #
-#.PARAMETER $headerRow
+#.PARAMETER $HeaderRow
 # The row that contains the header of the file (int). Default is 1
 #
-#.PARAMETER $exportToFile
+#.PARAMETER $ExportToFile
 # If true (default), the function will create a separate .sql file 
 # containing the script to create the table. Else, it will simply
 # display the script to the console.
 #
-#.PARAMETER $sqlStringLength
+#.PARAMETER $SqlStringLength
 # (int) representing the maximum value of a SQL nvarchar - Default 50
 #
 #.EXAMPLE
-# CreateSqlTableFrom-Excel -excelFilePath "pathToExcelFile.xlsx"
+# CreateSqlTableFrom-Excel -ExcelFilePath "pathToExcelFile.xlsx"
 #
 #.EXAMPLE
-# CreateSqlTableFrom-Excel -excelFilePath $path -exportToFile $false  - this script takes the file from $path
+# CreateSqlTableFrom-Excel -ExcelFilePath $path -ExportToFile $false  - this script takes the file from $path
 # and only displays the result to the console
 ##############################################################################
 
@@ -34,21 +34,21 @@
 function CreateSqlTableFrom-Excel
 {
     Param(
-         [string]$excelFilePath, 
-         [int]$headerRow = 1, 
-         [bool]$exportToFile = $true, 
-         [int]$sqlStringLength = 50)
+         [string]$ExcelFilePath, 
+         [int]$HeaderRow = 1, 
+         [bool]$ExportToFile = $true, 
+         [int]$SqlStringLength = 50)
 
-    $formatDictionary = @{"@" = "nvarchar(" + $sqlStringLength + ")"; 
+    $formatDictionary = @{"@" = "nvarchar(" + $SqlStringLength + ")"; 
                           "0" = "int"; 
                           "0,000" = "float"; 
                           "0,00" = "float"; 
                           "0,0" = "float"; 
-                          "General" = "nvarchar(" + $sqlStringLength + ")";
+                          "General" = "nvarchar(" + $SqlStringLength + ")";
                          }
 
     $excel = New-Object -ComObject Excel.Application
-    $workbook = $excel.Workbooks.Open($path)
+    $workbook = $excel.Workbooks.Open($ExcelFilePath)
     
     for($i = 1; $i -le $workbook.Sheets.Count; $i++)
     {
@@ -60,14 +60,14 @@ function CreateSqlTableFrom-Excel
         for ($column = 1; $column -le $sheet.UsedRange.Columns.Count; $column++)
         {
             $sqlCreateTableStatement += "`n" + 
-                                        $sheet.Cells($headerRow, $column).Text + 
+                                        $sheet.Cells($HeaderRow, $column).Text + 
                                         " " + 
-                                        $formatDictionary[$sheet.Cells($headerRow, $column).NumberFormat]
+                                        $formatDictionary[$sheet.Cells($HeaderRow, $column).NumberFormat]
         }
         
         $sqlCreateTableStatement += "`n)"
 
-        if($exportToFile)
+        if($ExportToFile)
         {
             $scriptFileName = "CREATE " + $sheet.Name + ".sql"
             $sqlCreateTableStatement | Out-File $scriptFileName
