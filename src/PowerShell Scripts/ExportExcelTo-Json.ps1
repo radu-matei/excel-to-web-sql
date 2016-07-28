@@ -29,7 +29,10 @@
 
 function ExportExcelTo-Json
 {
-    Param([string]$excelFilePath, [int]$headerRow = (1), [bool]$exportToFile = ($true))
+    Param(
+         [string]$excelFilePath, 
+         [int]$headerRow = 1, 
+         [bool]$exportToFile = $true)
 
     $excel = New-Object -ComObject Excel.Application
     $workbook = $excel.Workbooks.Open($excelFilePath)
@@ -47,7 +50,9 @@ function ExportExcelTo-Json
 
             for($column = 1; $column -le $sheet.UsedRange.Columns.Count; $column++)
             {
-                $sheetObject | Add-Member -MemberType NoteProperty -Name $sheet.Cells($headerRow, $column).Text -Value $sheet.Cells($row, $column).Value2
+                $sheetObject | Add-Member -MemberType NoteProperty 
+                                          -Name $sheet.Cells($headerRow, $column).Text 
+                                          -Value $sheet.Cells($row, $column).Value2
             }
 
             $sheetArray += $sheetObject
