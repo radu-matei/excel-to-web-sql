@@ -9,13 +9,13 @@
 # Be aware of various data types and the formatting form the Excel file!
 #
 #
-#.PARAMETER $excelFilePath
+#.PARAMETER $ExcelFilePath
 # The path to the Excel file
 #
-#.PARAMETER $headerRow
+#.PARAMETER $HeaderRow
 # The row that contains the header of the file (int). Default is 1
 #
-#.PARAMETER $exportToFile
+#.PARAMETER $ExportToFile
 # If true (default), the function will export the data from each sheet into a 
 # separate JSON file with the same name as the sheet
 #
@@ -30,12 +30,12 @@
 function ExportExcelTo-Json
 {
     Param(
-         [string]$excelFilePath, 
-         [int]$headerRow = 1, 
-         [bool]$exportToFile = $true)
+         [string]$ExcelFilePath, 
+         [int]$HeaderRow = 1, 
+         [bool]$ExportToFile = $true)
 
     $excel = New-Object -ComObject Excel.Application
-    $workbook = $excel.Workbooks.Open($excelFilePath)
+    $workbook = $excel.Workbooks.Open($ExcelFilePath)
 
     for($i = 1; $i -le $workbook.Sheets.Count; $i++)
     {
@@ -44,21 +44,21 @@ function ExportExcelTo-Json
 
         $sheetArray = @()
 
-        for($row = $headerRow + 1; $row -le $sheet.UsedRange.Rows.Count; $row++)
+        for($row = $HeaderRow + 1; $row -le $sheet.UsedRange.Rows.Count; $row++)
         {
             $sheetObject = New-Object -TypeName PSObject
 
             for($column = 1; $column -le $sheet.UsedRange.Columns.Count; $column++)
             {
-                $sheetObject | Add-Member -MemberType NoteProperty 
-                                          -Name $sheet.Cells($headerRow, $column).Text 
-                                          -Value $sheet.Cells($row, $column).Value2
+                $sheetObject | Add-Member -MemberType NoteProperty `
+                                          -Name $sheet.Cells($headerRow, $column).Text `
+                                          -Value $sheet.Cells($row, $column).Value2 `
             }
 
             $sheetArray += $sheetObject
         }
 
-        if($exportToFile)
+        if($ExportToFile)
         {
             ConvertTo-Json $sheetArray | Out-File "$($sheet.Name).json"
         }
