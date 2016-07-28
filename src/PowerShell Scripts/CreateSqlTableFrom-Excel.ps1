@@ -23,7 +23,7 @@
 # CreateSqlTableFrom-Excel -excelFilePath "pathToExcelFile.xlsx"
 #
 #.EXAMPLE
-# ExportExcelTo-Json -excelFilePath $path -exportToFile $false  - this script takes the file from $path
+# CreateSqlTableFrom-Excel -excelFilePath $path -exportToFile $false  - this script takes the file from $path
 # and only displays the result to the console
 ##############################################################################
 
