@@ -32,7 +32,7 @@ function ExportExcelTo-Json
     Param([string]$excelFilePath, [int]$headerRow = (1), [bool]$exportToFile = ($true))
 
     $excel = New-Object -ComObject Excel.Application
-    $workbook = $excel.Workbooks.Open($path)
+    $workbook = $excel.Workbooks.Open($excelFilePath)
 
     for($i = 1; $i -le $workbook.Sheets.Count; $i++)
     {
