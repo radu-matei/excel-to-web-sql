@@ -32,7 +32,13 @@ function CreateSqlTableFrom-Excel
 {
     Param([string]$excelFilePath, [int]$headerRow = 1, [bool]$exportToFile = $true, [int]$sqlStringLength = 50)
 
-    $formatDictionary = @{"@" = "nvarchar(" + $sqlStringLength + ")"; "0" = "int"; "0,000" = "float"; "0,00" = "float"; "0,0" = "float"; "General" = "nvarchar(" + $sqlStringLength + ")";}
+    $formatDictionary = @{"@" = "nvarchar(" + $sqlStringLength + ")"; 
+                          "0" = "int"; 
+                          "0,000" = "float"; 
+                          "0,00" = "float"; 
+                          "0,0" = "float"; 
+                          "General" = "nvarchar(" + $sqlStringLength + ")";
+                         }
 
     $excel = New-Object -ComObject Excel.Application
     $workbook = $excel.Workbooks.Open($path)
@@ -46,7 +52,10 @@ function CreateSqlTableFrom-Excel
 
         for ($column = 1; $column -le $sheet.UsedRange.Columns.Count; $column++)
         {
-            $sqlCreateTableStatement += "`n" + $sheet.Cells($headerRow, $column).Text + " " + $formatDictionary[$sheet.Cells($headerRow, $column).NumberFormat]
+            $sqlCreateTableStatement += "`n" + 
+                                        $sheet.Cells($headerRow, $column).Text + 
+                                        " " + 
+                                        $formatDictionary[$sheet.Cells($headerRow, $column).NumberFormat]
         }
         
         $sqlCreateTableStatement += "`n)"
