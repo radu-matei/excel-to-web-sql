@@ -33,7 +33,11 @@
 
 function CreateSqlTableFrom-Excel
 {
-    Param([string]$excelFilePath, [int]$headerRow = 1, [bool]$exportToFile = $true, [int]$sqlStringLength = 50)
+    Param(
+         [string]$excelFilePath, 
+         [int]$headerRow = 1, 
+         [bool]$exportToFile = $true, 
+         [int]$sqlStringLength = 50)
 
     $formatDictionary = @{"@" = "nvarchar(" + $sqlStringLength + ")"; 
                           "0" = "int"; 
