@@ -19,6 +19,9 @@
 # containing the script to create the table. Else, it will simply
 # display the script to the console.
 #
+#.PARAMETER $sqlStringLength
+# (int) representing the maximum value of a SQL nvarchar - Default 50
+#
 #.EXAMPLE
 # CreateSqlTableFrom-Excel -excelFilePath "pathToExcelFile.xlsx"
 #
