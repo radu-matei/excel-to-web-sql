@@ -62,7 +62,7 @@ function CreateSqlTableFrom-Excel
             $sqlCreateTableStatement += "`n" + 
                                         $sheet.Cells($HeaderRow, $column).Text + 
                                         " " + 
-                                        $formatDictionary[$sheet.Cells($HeaderRow, $column).NumberFormat]
+                                        $formatDictionary[$sheet.Cells($HeaderRow, $column).NumberFormat] + ","
         }
         
         $sqlCreateTableStatement += "`n)"
