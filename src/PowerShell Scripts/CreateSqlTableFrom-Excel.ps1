@@ -14,10 +14,11 @@
 #.PARAMETER $HeaderRow
 # The row that contains the header of the file (int). Default is 1
 #
-#.PARAMETER $ExportToFile
-# If true (default), the function will create a separate .sql file 
-# containing the script to create the table. Else, it will simply
-# display the script to the console.
+#.PARAMETER $SuppressFileCreation
+# Switch parameter that when passed, will suppress
+# the creation a separate .sql file for each sheet in the workbook
+# and will just output the creation script ot the console
+# 
 #
 #.PARAMETER $SqlStringLength
 # (int) representing the maximum value of a SQL nvarchar - Default 50
@@ -26,8 +27,9 @@
 # CreateSqlTableFrom-Excel -ExcelFilePath "pathToExcelFile.xlsx"
 #
 #.EXAMPLE
-# CreateSqlTableFrom-Excel -ExcelFilePath $path -ExportToFile $false  - this script takes the file from $path
-# and only displays the result to the console
+# CreateSqlTableFrom-Excel -ExcelFilePath $path -SuppressFileCreation
+# this script takes the file from $path and only displays
+# the result to the console
 ##############################################################################
 
 
@@ -36,7 +38,7 @@ function CreateSqlTableFrom-Excel
     Param(
          [string]$ExcelFilePath, 
          [int]$HeaderRow = 1, 
-         [bool]$ExportToFile = $true, 
+         [switch]$SuppressFileCreation, 
          [int]$SqlStringLength = 50)
 
     $formatDictionary = @{"@" = "nvarchar(" + $SqlStringLength + ")"; 
@@ -67,7 +69,7 @@ function CreateSqlTableFrom-Excel
         
         $sqlCreateTableStatement += "`n)"
 
-        if($ExportToFile)
+        if(!$SuppressFileCreation)
         {
             $scriptFileName = "CREATE " + $sheet.Name + ".sql"
             $sqlCreateTableStatement | Out-File $scriptFileName
