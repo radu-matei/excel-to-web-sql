@@ -7,8 +7,8 @@
     <ProjectGuid>{CEAC0E24-6455-420C-B034-4E4C87D9CDFA}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ExcelToWebSql.Console</RootNamespace>
-    <AssemblyName>ExcelToWebSql.Console</AssemblyName>
+    <RootNamespace>ExcelToWebSql.Generator</RootNamespace>
+    <AssemblyName>ExcelToWebSql.Generator</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -48,7 +48,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExcelConverter.cs" />
     <Compile Include="ExcelSqlScriptGenerator.cs" />
+    <Compile Include="IExcelConverter.cs" />
     <Compile Include="IExcelSqlScriptGenerator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
