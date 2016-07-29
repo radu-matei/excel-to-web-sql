@@ -15,15 +15,15 @@
 #.PARAMETER $HeaderRow
 # The row that contains the header of the file (int). Default is 1
 #
-#.PARAMETER $ExportToFile
-# If true (default), the function will export the data from each sheet into a 
-# separate JSON file with the same name as the sheet
+#.PARAMETER $SuppressFileCreation
+# Switch variable that when passed, will suppress the creation of JSON files
+# for each workbook in the sheet
 #
 #.EXAMPLE
-# ExportExcelTo-Json -excelFilePath "pathToExcelFile.xlsx"
+# ExportExcelTo-Json -ExcelFilePath "pathToExcelFile.xlsx"
 #
 #.EXAMPLE
-# ExportExcelTo-Json -excelFilePath $path -exportToFile $false  - this script takes the file from $path
+# ExportExcelTo-Json -ExcelFilePath $path -SuppressFileCreation  - this script takes the file from $path
 # and only displays the result to the console
 ##############################################################################
 
@@ -32,7 +32,7 @@ function ExportExcelTo-Json
     Param(
          [string]$ExcelFilePath, 
          [int]$HeaderRow = 1, 
-         [bool]$ExportToFile = $true)
+         [switch]$SuppressFileCreation)
 
     $excel = New-Object -ComObject Excel.Application
     $workbook = $excel.Workbooks.Open($ExcelFilePath)
@@ -46,26 +46,26 @@ function ExportExcelTo-Json
 
         for($row = $HeaderRow + 1; $row -le $sheet.UsedRange.Rows.Count; $row++)
         {
-            $sheetObject = New-Object -TypeName PSObject
+            $rowObject = New-Object -TypeName PSObject
 
             for($column = 1; $column -le $sheet.UsedRange.Columns.Count; $column++)
             {
-                $sheetObject | Add-Member -MemberType NoteProperty `
+                $rowObject | Add-Member -MemberType NoteProperty `
                                           -Name $sheet.Cells($headerRow, $column).Text `
                                           -Value $sheet.Cells($row, $column).Value2 `
             }
 
-            $sheetArray += $sheetObject
+            $sheetArray += $rowObject
         }
 
-        if($ExportToFile)
+        if(!$SuppressFileCreation)
         {
             ConvertTo-Json $sheetArray | Out-File "$($sheet.Name).json"
         }
 
         else 
         {
-            $sheetArray
+            ConvertTo-Json $sheetArray
         }
     }
 
