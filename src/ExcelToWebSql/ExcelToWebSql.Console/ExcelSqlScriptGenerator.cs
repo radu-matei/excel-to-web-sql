@@ -34,7 +34,9 @@ namespace ExcelToWebSql.Generator
 
                 for(int column = 1; column <= sheet.UsedRange.Columns.Count; column++)
                 {
-                    sqlCreateTableStatement += "\n" + sheet.Cells[1, column].Text + " " + formatDictionary[sheet.Cells[1, column].NumberFormat] + ",";
+                    sqlCreateTableStatement += "\n" + sheet.Cells[1, column].Text + " "
+                                            + formatDictionary[sheet.Cells[1, column].NumberFormat]
+                                            + ",";
                 }
 
                 sqlCreateTableStatement += "\n)";
@@ -62,18 +64,24 @@ namespace ExcelToWebSql.Generator
 
                     for (int column = 1; column <= sheet.UsedRange.Columns.Count - 1; column++)
                     {
-                        if (sheet.Cells[row, column].NumberFormat == "General" || sheet.Cells[row, column].NumberFormat == "@")
+                        if (sheet.Cells[row, column].NumberFormat == "General" 
+                           || sheet.Cells[row, column].NumberFormat == "@")
+
                             sqlInsertStatement += String.Format("'{0}', ", sheet.Cells[row, column].Value2.ToString());
 
                         else
                             sqlInsertStatement += String.Format("{0}, ", sheet.Cells[row, column].Value2.ToString());
                     }
 
-                    if (sheet.Cells[row, sheet.UsedRange.Columns.Count].NumberFormat == "General" || sheet.Cells[row, sheet.UsedRange.Columns.Count].NumberFormat == "@")
-                        sqlInsertStatement += String.Format("'{0}'", sheet.Cells[row, sheet.UsedRange.Columns.Count].Value2.ToString()) + " )\n      ";
+                    if (sheet.Cells[row, sheet.UsedRange.Columns.Count].NumberFormat == "General" 
+                       || sheet.Cells[row, sheet.UsedRange.Columns.Count].NumberFormat == "@")
+
+                        sqlInsertStatement += String.Format("'{0}'", sheet.Cells[row, sheet.UsedRange.Columns.Count].Value2.ToString())
+                                           + " )\n      ";
 
                     else
-                        sqlInsertStatement += String.Format("{0}", sheet.Cells[row, sheet.UsedRange.Columns.Count].Value2.ToString()) + " )\n      ";
+                        sqlInsertStatement += String.Format("{0}", sheet.Cells[row, sheet.UsedRange.Columns.Count].Value2.ToString())
+                                           + " )\n      ";
                 }
                 
                 Console.WriteLine(sqlInsertStatement);
