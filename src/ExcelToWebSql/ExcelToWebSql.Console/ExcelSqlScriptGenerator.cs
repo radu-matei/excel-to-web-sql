@@ -9,10 +9,14 @@ namespace ExcelToWebSql.Generator
         private Application _excelApplication { get; set; }
         private Workbook _workbook { get; set; }
 
+        public string Path { get; set; }
+
         public ExcelSqlScriptGenerator(string path)
         {
             _excelApplication = new Application();
-            _workbook = _excelApplication.Workbooks.Open(path);
+            _workbook = _excelApplication.Workbooks.Open(Path);
+
+            Path = path;
         }
 
         public void GenerateSqlTableScipts()
