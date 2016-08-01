@@ -2,6 +2,7 @@
 using Microsoft.Office.Interop.Excel;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace ExcelToWebSql.Generator
 {
@@ -21,28 +22,11 @@ namespace ExcelToWebSql.Generator
         {
             _workbook = _excelApplication.Workbooks.Open(sourceFilePath);
 
-            var formatDictionary = new Dictionary<string, string>()
-            {
-                {"@", "nvarchar(50)" },
-                {"General", "nvarchar(50)" },
-                {"0", "int" },
-                {"0,0", "float" },
-                {"0,00", "float" },
-                {"0,000", "float" }
-            };
-
             for(int sheetNumber = 1; sheetNumber <= _workbook.Sheets.Count; sheetNumber++)
             {
                 Worksheet sheet = _workbook.Sheets[sheetNumber];
                 string sqlCreateTableStatement = "CREATE TABLE " + sheet.Name + "( \n";
-
-                for(int column = 1; column <= sheet.UsedRange.Columns.Count; column++)
-                {
-                    sqlCreateTableStatement += "\n" + sheet.Cells[1, column].Text + " "
-                                            + formatDictionary[sheet.Cells[1, column].NumberFormat]
-                                            + ",";
-                }
-                sqlCreateTableStatement += "\n)";
+                AppendColumnNames(sheet, ref sqlCreateTableStatement);
 
                 var fileName = outputFilePath + "CREATE " + sheet.Name + ".sql";
                 _storage.SaveDocument(sqlCreateTableStatement, fileName);
@@ -65,35 +49,68 @@ namespace ExcelToWebSql.Generator
 
                 sqlInsertStatement += columns[columns.Count - 1] + " )" + "\n" + "VALUES ";
 
-                for (int row = 2; row <= sheet.UsedRange.Rows.Count; row++)
-                {
-                    sqlInsertStatement += "\n       ( ";
-
-                    for (int column = 1; column <= sheet.UsedRange.Columns.Count - 1; column++)
-                    {
-                        if (sheet.Cells[row, column].NumberFormat == "General" 
-                           || sheet.Cells[row, column].NumberFormat == "@")
-
-                            sqlInsertStatement += String.Format("'{0}', ", sheet.Cells[row, column].Value2.ToString());
-
-                        else
-                            sqlInsertStatement += String.Format("{0}, ", sheet.Cells[row, column].Value2.ToString());
-                    }
-
-                    if (sheet.Cells[row, sheet.UsedRange.Columns.Count].NumberFormat == "General" 
-                       || sheet.Cells[row, sheet.UsedRange.Columns.Count].NumberFormat == "@")
-
-                        sqlInsertStatement += String.Format("'{0}'", sheet.Cells[row, sheet.UsedRange.Columns.Count].Value2.ToString())
-                                           + " )\n      ";
-
-                    else
-                        sqlInsertStatement += String.Format("{0}", sheet.Cells[row, sheet.UsedRange.Columns.Count].Value2.ToString())
-                                           + " )\n      ";
-                }
+                AppendInsertValues(sheet, ref sqlInsertStatement);
+                
                 var fileName = outputFilePath + "INSERT " + sheet.Name + ".sql";
                 _storage.SaveDocument(sqlInsertStatement, fileName);
             }
             _workbook.Close();
+        }
+
+        private void AppendInsertValues(Worksheet sheet, ref string sqlInsertStatement)
+        {
+            StringBuilder sqlStatementBuilder = new StringBuilder(sqlInsertStatement);
+            for (int row = 2; row <= sheet.UsedRange.Rows.Count; row++)
+            {
+                sqlStatementBuilder.Append("\n       ( ");
+
+                for (int column = 1; column <= sheet.UsedRange.Columns.Count - 1; column++)
+                {
+                    if (sheet.Cells[row, column].NumberFormat == "General"
+                       || sheet.Cells[row, column].NumberFormat == "@")
+
+                        sqlStatementBuilder.AppendFormat("'{0}', ", sheet.Cells[row, column].Value2.ToString());
+
+                    else
+                        sqlStatementBuilder.AppendFormat("{0}, ", sheet.Cells[row, column].Value2.ToString());
+                }
+
+                if (sheet.Cells[row, sheet.UsedRange.Columns.Count].NumberFormat == "General"
+                   || sheet.Cells[row, sheet.UsedRange.Columns.Count].NumberFormat == "@")
+
+                    sqlStatementBuilder.AppendFormat("'{0}'", sheet.Cells[row, sheet.UsedRange.Columns.Count].Value2.ToString())
+                                       .AppendFormat(" )\n      ");
+
+                else
+                    sqlStatementBuilder.AppendFormat("{0}", sheet.Cells[row, sheet.UsedRange.Columns.Count].Value2.ToString())
+                                       .AppendFormat(" )\n      ");
+            }
+            sqlInsertStatement = sqlStatementBuilder.ToString();
+        }
+
+        private void AppendColumnNames(Worksheet sheet, ref string sqlCreateTableStatement)
+        {
+            var formatDictionary = new Dictionary<string, string>()
+            {
+                {"@", "nvarchar(50)" },
+                {"General", "nvarchar(50)" },
+                {"0", "int" },
+                {"0,0", "float" },
+                {"0,00", "float" },
+                {"0,000", "float" }
+            };
+
+            StringBuilder sqlStatementBuilder = new StringBuilder(sqlCreateTableStatement);
+
+            for (int column = 1; column <= sheet.UsedRange.Columns.Count; column++)
+            {
+                sqlStatementBuilder.Append("\n" + sheet.Cells[1, column].Text + " ")
+                                   .Append(formatDictionary[sheet.Cells[1, column].NumberFormat])
+                                   .Append(",");
+            }
+            sqlStatementBuilder.Append("\n)");
+
+            sqlCreateTableStatement = sqlStatementBuilder.ToString();
         }
 
         private List<string> GetSheetColumns(Worksheet sheet)
