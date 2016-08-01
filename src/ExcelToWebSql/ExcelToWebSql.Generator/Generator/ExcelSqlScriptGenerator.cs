@@ -9,13 +9,12 @@ namespace ExcelToWebSql.Generator
     {
         private Application _excelApplication { get; set; }
         private Workbook _workbook { get; set; }
-        private IStorage _fileStorage { get; set; }
+        private IStorage _storage { get; set; }
 
         public ExcelSqlScriptGenerator()
         {
             _excelApplication = new Application();
-            //_workbook = new Workbook();
-            _fileStorage = new FileStorage();
+            _storage = new FileStorage();
         }
 
         public void GenerateSqlTableScipts(string sourceFilePath, string outputFilePath)
@@ -46,7 +45,7 @@ namespace ExcelToWebSql.Generator
                 sqlCreateTableStatement += "\n)";
 
                 var fileName = outputFilePath + "CREATE " + sheet.Name + ".sql";
-                _fileStorage.SaveDocument(sqlCreateTableStatement, fileName);
+                _storage.SaveDocument(sqlCreateTableStatement, fileName);
             }
             _workbook.Close();
         }
@@ -92,7 +91,7 @@ namespace ExcelToWebSql.Generator
                                            + " )\n      ";
                 }
                 var fileName = outputFilePath + "INSERT " + sheet.Name + ".sql";
-                _fileStorage.SaveDocument(sqlInsertStatement, fileName);
+                _storage.SaveDocument(sqlInsertStatement, fileName);
             }
             _workbook.Close();
         }
