@@ -52,21 +52,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DynamicExtensions.cs" />
-    <Compile Include="ExcelConverter.cs" />
-    <Compile Include="ExcelSqlScriptGenerator.cs" />
-    <Compile Include="IExcelConverter.cs" />
-    <Compile Include="IExcelSqlScriptGenerator.cs" />
-    <Compile Include="ISerializer.cs" />
-    <Compile Include="JsonSerializer.cs" />
+    <Compile Include="Extensions\DynamicExtensions.cs" />
+    <Compile Include="Converter\ExcelConverter.cs" />
+    <Compile Include="Generator\ExcelSqlScriptGenerator.cs" />
+    <Compile Include="Converter\IExcelConverter.cs" />
+    <Compile Include="Generator\IExcelSqlScriptGenerator.cs" />
+    <Compile Include="Serializer\ISerializer.cs" />
+    <Compile Include="Serializer\JsonSerializer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="XmlSerializer.cs" />
+    <Compile Include="Serializer\XmlSerializer.cs" />
+    <Compile Include="Storage\FileStorage.cs" />
+    <Compile Include="Storage\IStorage.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

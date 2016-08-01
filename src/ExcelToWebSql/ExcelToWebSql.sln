@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelToWebSql.Generator", "ExcelToWebSql.Console\ExcelToWebSql.Generator.csproj", "{CEAC0E24-6455-420C-B034-4E4C87D9CDFA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelToWebSql.Generator", "ExcelToWebSql.Generator\ExcelToWebSql.Generator.csproj", "{CEAC0E24-6455-420C-B034-4E4C87D9CDFA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
