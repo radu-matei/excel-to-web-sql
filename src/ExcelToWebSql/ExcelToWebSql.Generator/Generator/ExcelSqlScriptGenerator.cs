@@ -26,7 +26,7 @@ namespace ExcelToWebSql.Generator
             {
                 Worksheet sheet = _workbook.Sheets[sheetNumber];
                 string sqlCreateTableStatement = "CREATE TABLE " + sheet.Name + "( \n";
-                AppendColumnNames(sheet, ref sqlCreateTableStatement);
+                AddSqlColumnMapping(sheet, ref sqlCreateTableStatement);
 
                 var fileName = outputFilePath + "CREATE " + sheet.Name + ".sql";
                 _storage.SaveDocument(sqlCreateTableStatement, fileName);
@@ -40,15 +40,9 @@ namespace ExcelToWebSql.Generator
             for (int sheetNumnber = 1; sheetNumnber <= _workbook.Sheets.Count; sheetNumnber++)
             {
                 Worksheet sheet = _workbook.Sheets.Item[sheetNumnber];
-
                 string sqlInsertStatement = "INSERT INTO " + sheet.Name + "( ";
-                var columns = GetSheetColumns(sheet);
 
-                for (int i = 0; i < columns.Count - 1; i++)
-                    sqlInsertStatement += columns[i] + ", ";
-
-                sqlInsertStatement += columns[columns.Count - 1] + " )" + "\n" + "VALUES ";
-
+                AddSqlColumnNames(sheet, ref sqlInsertStatement);
                 AppendInsertValues(sheet, ref sqlInsertStatement);
                 
                 var fileName = outputFilePath + "INSERT " + sheet.Name + ".sql";
@@ -88,7 +82,7 @@ namespace ExcelToWebSql.Generator
             sqlInsertStatement = sqlStatementBuilder.ToString();
         }
 
-        private void AppendColumnNames(Worksheet sheet, ref string sqlCreateTableStatement)
+        private void AddSqlColumnMapping(Worksheet sheet, ref string sqlCreateTableStatement)
         {
             var formatDictionary = new Dictionary<string, string>()
             {
@@ -111,6 +105,19 @@ namespace ExcelToWebSql.Generator
             sqlStatementBuilder.Append("\n)");
 
             sqlCreateTableStatement = sqlStatementBuilder.ToString();
+        }
+
+        private void AddSqlColumnNames(Worksheet sheet, ref string sqlStatement)
+        {
+            StringBuilder sqlStatementBuilder = new StringBuilder(sqlStatement);
+            var columns = GetSheetColumns(sheet);
+
+            for (int i = 0; i < columns.Count - 1; i++)
+                sqlStatementBuilder.AppendFormat(columns[i] + ", ");
+
+            sqlStatementBuilder.AppendFormat(columns[columns.Count - 1] + " )" + "\n" + "VALUES ");
+
+            sqlStatement = sqlStatementBuilder.ToString();
         }
 
         private List<string> GetSheetColumns(Worksheet sheet)
