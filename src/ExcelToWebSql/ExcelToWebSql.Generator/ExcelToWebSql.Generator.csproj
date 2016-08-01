@@ -57,8 +57,11 @@
     <Compile Include="ExcelSqlScriptGenerator.cs" />
     <Compile Include="IExcelConverter.cs" />
     <Compile Include="IExcelSqlScriptGenerator.cs" />
+    <Compile Include="ISerializer.cs" />
+    <Compile Include="JsonSerializer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="XmlSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
