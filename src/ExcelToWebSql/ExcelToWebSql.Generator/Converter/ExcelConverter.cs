@@ -2,7 +2,7 @@
 using System.Dynamic;
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using ExcelToWebSql.Generator.Storage;
 
 namespace ExcelToWebSql.Generator
 {
@@ -10,31 +10,42 @@ namespace ExcelToWebSql.Generator
     {
         private Application _excelApplication { get; set; }
         private Workbook _workbook { get; set; }
-        private enum ExportTye { Json, Xml }
+        private IStorage _storage { get; set; }
 
 
-        public string Path { get; set; }
-
-        public ExcelConverter(string path)
+        public ExcelConverter()
         {
             _excelApplication = new Application();
-            _workbook = _excelApplication.Workbooks.Open(path);
-
-            Path = path;
+            _storage = new FileStorage();
         }
 
-        public void ConvertToJson(string outputPath)
+        public void ConvertToJson(string sourceFilePath, string outputFilePath)
         {
-            Convert(outputPath, ExportTye.Json);
+            var jsonSerializer = new JsonSerializer();
+            
+            foreach(var sheetList in ConvertToObject(sourceFilePath))
+            {
+                var fileName = outputFilePath + sheetList.Key + ".json";
+                _storage.SaveDocument(jsonSerializer.Serialize(sheetList.Value), fileName);
+            }
         }
 
-        public void ConvertToXml(string outputPath)
+        public void ConvertToXml(string sourceFilePath,string outputFilePath)
         {
-            Convert(outputPath, ExportTye.Xml);
+            var xmlSerializer = new XmlSerializer();
+
+            foreach (var sheetList in ConvertToObject(sourceFilePath))
+            {
+                var fileName = outputFilePath + sheetList.Key + ".xml";
+                _storage.SaveDocument(xmlSerializer.Serialize(sheetList.Value), fileName);
+            }
         }
 
-        private void Convert(string outputPath, ExportTye type)
+        private Dictionary<string, List<ExpandoObject>> ConvertToObject(string sourceFilePath)
         {
+            _workbook = _excelApplication.Workbooks.Open(sourceFilePath);
+            var workbookDictionary = new Dictionary<string, List<ExpandoObject>>();
+
             for (int sheetNumber = 1; sheetNumber <= _workbook.Sheets.Count; sheetNumber++)
             {
                 var sheet = _workbook.Sheets[sheetNumber];
@@ -51,16 +62,14 @@ namespace ExcelToWebSql.Generator
                     }
                     dynamicSheetList.Add(dynamicRowObject);
                 }
-                foreach (var dynamicObject in dynamicSheetList)
-                {
-                    dynamicObject.Print();
-                }
+                workbookDictionary.Add(sheet.Name, dynamicSheetList);
             }
+            _workbook.Close();
+            return workbookDictionary;
         }
 
         public void Dispose()
         {
-            _workbook.Close();
             _excelApplication.Quit();
 
             System.Runtime.InteropServices.Marshal.ReleaseComObject(_excelApplication);
