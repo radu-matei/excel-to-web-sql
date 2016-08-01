@@ -43,6 +43,7 @@ namespace ExcelToWebSql.Generator
                 string sqlInsertStatement = "INSERT INTO " + sheet.Name + "( ";
 
                 AddSqlColumnNames(sheet, ref sqlInsertStatement);
+                sqlInsertStatement += "\n" + "VALUES ";
                 AppendInsertValues(sheet, ref sqlInsertStatement);
                 
                 var fileName = outputFilePath + "INSERT " + sheet.Name + ".sql";
@@ -56,30 +57,32 @@ namespace ExcelToWebSql.Generator
             StringBuilder sqlStatementBuilder = new StringBuilder(sqlInsertStatement);
             for (int row = 2; row <= sheet.UsedRange.Rows.Count; row++)
             {
-                sqlStatementBuilder.Append("\n       ( ");
+                AppendSqlRowInsert(sheet, row, sqlStatementBuilder);
+                if (row != sheet.UsedRange.Rows.Count)
+                    sqlStatementBuilder.AppendFormat(",");
+            }
 
-                for (int column = 1; column <= sheet.UsedRange.Columns.Count - 1; column++)
-                {
-                    if (sheet.Cells[row, column].NumberFormat == "General"
-                       || sheet.Cells[row, column].NumberFormat == "@")
+            sqlInsertStatement = sqlStatementBuilder.ToString();
+        }
 
-                        sqlStatementBuilder.AppendFormat("'{0}', ", sheet.Cells[row, column].Value2.ToString());
+        private void AppendSqlRowInsert(Worksheet sheet, int rowNumber, StringBuilder sqlStatementBuilder)
+        {
+            sqlStatementBuilder.Append("\n       ( ");
 
-                    else
-                        sqlStatementBuilder.AppendFormat("{0}, ", sheet.Cells[row, column].Value2.ToString());
-                }
+            for (int column = 1; column <= sheet.UsedRange.Columns.Count; column++)
+            {
+                if (sheet.Cells[rowNumber, column].NumberFormat == "General"
+                                       || sheet.Cells[rowNumber, column].NumberFormat == "@")
 
-                if (sheet.Cells[row, sheet.UsedRange.Columns.Count].NumberFormat == "General"
-                   || sheet.Cells[row, sheet.UsedRange.Columns.Count].NumberFormat == "@")
-
-                    sqlStatementBuilder.AppendFormat("'{0}'", sheet.Cells[row, sheet.UsedRange.Columns.Count].Value2.ToString())
-                                       .AppendFormat(" )\n      ");
+                    sqlStatementBuilder.AppendFormat("'{0}'", sheet.Cells[rowNumber, column].Text.ToString());
 
                 else
-                    sqlStatementBuilder.AppendFormat("{0}", sheet.Cells[row, sheet.UsedRange.Columns.Count].Value2.ToString())
-                                       .AppendFormat(" )\n      ");
+                    sqlStatementBuilder.AppendFormat("{0}", sheet.Cells[rowNumber, column].Text.ToString());
+
+                if (column != sheet.UsedRange.Columns.Count)
+                    sqlStatementBuilder.AppendFormat(", ");
             }
-            sqlInsertStatement = sqlStatementBuilder.ToString();
+            sqlStatementBuilder.AppendFormat(")");
         }
 
         private void AddSqlColumnMapping(Worksheet sheet, ref string sqlCreateTableStatement)
@@ -89,9 +92,9 @@ namespace ExcelToWebSql.Generator
                 {"@", "nvarchar(50)" },
                 {"General", "nvarchar(50)" },
                 {"0", "int" },
-                {"0,0", "float" },
-                {"0,00", "float" },
-                {"0,000", "float" }
+                {"0.0", "decimal" },
+                {"0.00", "decimal" },
+                {"0.000", "decimal" }
             };
 
             StringBuilder sqlStatementBuilder = new StringBuilder(sqlCreateTableStatement);
@@ -115,7 +118,8 @@ namespace ExcelToWebSql.Generator
             for (int i = 0; i < columns.Count - 1; i++)
                 sqlStatementBuilder.AppendFormat(columns[i] + ", ");
 
-            sqlStatementBuilder.AppendFormat(columns[columns.Count - 1] + " )" + "\n" + "VALUES ");
+            sqlStatementBuilder.AppendFormat(columns[columns.Count - 1])
+                               .Append(" )");
 
             sqlStatement = sqlStatementBuilder.ToString();
         }
