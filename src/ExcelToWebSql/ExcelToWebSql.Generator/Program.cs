@@ -1,19 +1,25 @@
-﻿namespace ExcelToWebSql.Generator
+﻿using System;
+using System.IO;
+
+namespace ExcelToWebSql.Generator
 {
     class Program
     {
         static void Main(string[] args)
         {
-            var sourceFilePath = @"C:\Users\t-ramate\Documents\Visual Studio 2015\Projects\ConsoleExcelDataReader\ConsoleExcelDataReader\worksheet.xlsx";
-            //IExcelSqlScriptGenerator scriptGenerator = new ExcelSqlScriptGenerator(sourceFilePath);
+            var sourceFilePath = Path.Combine(Environment.CurrentDirectory, "..\\..\\..\\..\\worksheet.xlsx");
+            var outputFilePath = Path.Combine(Environment.CurrentDirectory, "..\\..\\..\\..\\Output\\");
 
-            //scriptGenerator.GenerateSqlTableScipts();
-            //scriptGenerator.GenerateSqlInsertScripts();
+            IExcelSqlScriptGenerator scriptGenerator = new ExcelSqlScriptGenerator();
 
-            //scriptGenerator.Dispose();
+            scriptGenerator.GenerateSqlTableScipts(sourceFilePath, outputFilePath);
+            scriptGenerator.GenerateSqlInsertScripts(sourceFilePath, outputFilePath);
 
-            IExcelConverter excelConverter = new ExcelConverter(sourceFilePath);
-            excelConverter.ConvertToJson(sourceFilePath);
+            scriptGenerator.Dispose();
+
+
+            IExcelConverter excelConverter = new ExcelConverter();
+            excelConverter.ConvertToJson(sourceFilePath,outputFilePath);
 
             excelConverter.Dispose();
         }
