@@ -1,4 +1,5 @@
-﻿using Microsoft.Office.Interop.Excel;
+﻿using ExcelToWebSql.Generator.Storage;
+using Microsoft.Office.Interop.Excel;
 using System;
 using System.Collections.Generic;
 
@@ -8,19 +9,19 @@ namespace ExcelToWebSql.Generator
     {
         private Application _excelApplication { get; set; }
         private Workbook _workbook { get; set; }
+        private IStorage _fileStorage { get; set; }
 
-        public string Path { get; set; }
-
-        public ExcelSqlScriptGenerator(string path)
+        public ExcelSqlScriptGenerator()
         {
             _excelApplication = new Application();
-            _workbook = _excelApplication.Workbooks.Open(Path);
-
-            Path = path;
+            //_workbook = new Workbook();
+            _fileStorage = new FileStorage();
         }
 
-        public void GenerateSqlTableScipts()
+        public void GenerateSqlTableScipts(string sourceFilePath, string outputFilePath)
         {
+            _workbook = _excelApplication.Workbooks.Open(sourceFilePath);
+
             var formatDictionary = new Dictionary<string, string>()
             {
                 {"@", "nvarchar(50)" },
@@ -42,14 +43,17 @@ namespace ExcelToWebSql.Generator
                                             + formatDictionary[sheet.Cells[1, column].NumberFormat]
                                             + ",";
                 }
-
                 sqlCreateTableStatement += "\n)";
 
-                Console.WriteLine(sqlCreateTableStatement);
+                var fileName = outputFilePath + "CREATE " + sheet.Name + ".sql";
+                _fileStorage.SaveDocument(sqlCreateTableStatement, fileName);
             }
+            _workbook.Close();
         }
-        public void GenerateSqlInsertScripts()
+        public void GenerateSqlInsertScripts(string sourceFilePath, string outputFilePath)
         {
+            _workbook = _excelApplication.Workbooks.Open(sourceFilePath);
+
             for (int sheetNumnber = 1; sheetNumnber <= _workbook.Sheets.Count; sheetNumnber++)
             {
                 Worksheet sheet = _workbook.Sheets.Item[sheetNumnber];
@@ -87,9 +91,10 @@ namespace ExcelToWebSql.Generator
                         sqlInsertStatement += String.Format("{0}", sheet.Cells[row, sheet.UsedRange.Columns.Count].Value2.ToString())
                                            + " )\n      ";
                 }
-                
-                Console.WriteLine(sqlInsertStatement);
+                var fileName = outputFilePath + "INSERT " + sheet.Name + ".sql";
+                _fileStorage.SaveDocument(sqlInsertStatement, fileName);
             }
+            _workbook.Close();
         }
 
         private List<string> GetSheetColumns(Worksheet sheet)
@@ -106,7 +111,6 @@ namespace ExcelToWebSql.Generator
 
         public void Dispose()
         {
-            _workbook.Close();
             _excelApplication.Quit();
 
             System.Runtime.InteropServices.Marshal.ReleaseComObject(_excelApplication);
